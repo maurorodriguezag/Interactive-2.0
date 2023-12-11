@@ -1,0 +1,7 @@
+database
+sqlite3
+Interactive
+multiprocessing
+pexpect
+tabulate
+pynput

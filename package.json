@@ -1,0 +1,20 @@
+{
+    "name": "interactive2.0",
+    "version": "2.0.0",
+    "description": "",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron main.js",
+        "pack": "electron-builder --dir"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "^27.1.2",
+        "electron-builder": "^22.9.1"
+    },
+    "dependencies": {
+        "sqlite3": "^5.1.6"
+    }
+}

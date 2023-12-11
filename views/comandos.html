@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Electron SQLite App</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <h1 class="mb-4">Lista de Comandos</h1>
+      <button
+        class="btn btn-success mb-3"
+        data-bs-toggle="modal"
+        data-bs-target="#crearModal"
+      >
+        Crear Nuevo
+      </button>
+      <table id="comandosTable" class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Comando</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- La tabla se llenará dinámicamente desde el script -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bootstrap 5 JS y Popper.js (requerido por Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    <!-- Modal para crear nuevo registro -->
+    <div
+      class="modal fade"
+      id="crearModal"
+      tabindex="-1"
+      aria-labelledby="crearModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="crearModalLabel">
+              Crear Nuevo Comando
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="crearForm">
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="nombre" required />
+              </div>
+              <div class="mb-3">
+                <label for="comando" class="form-label">Comando:</label>
+                <input type="text" class="form-control" id="comando" required />
+              </div>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="crearNuevoComandos()"
+              >
+                Crear
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para editar registro -->
+    <div
+      class="modal fade"
+      id="editarModal"
+      tabindex="-1"
+      aria-labelledby="editarModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editarModalLabel">Editar Comando</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editarForm">
+              <input type="hidden" id="editId" />
+              <div class="mb-3">
+                <label for="editNombre" class="form-label">Nombre:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editNombre"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editComando" class="form-label">Comando:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editComando"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editEstado" class="form-label">Estado:</label>
+                <select class="form-select" id="editEstado" required>
+                  <option value="1">Activo</option>
+                  <option value="0">Deshabilitado</option>
+                </select>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary me-1"
+                onclick="guardarEdicionComandos()"
+              >
+                Guardar Cambios
+              </button>
+              <button
+                type="button"
+                class="btn btn-warning"
+                data-bs-toggle="modal" data-bs-target="#automatModal"
+                onclick="traerHistorial()"
+              >
+                Automatizar respuestas
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para automatizar respuestas -->
+    <div
+      class="modal fade"
+      id="automatModal"
+      tabindex="-1"
+      aria-labelledby="automatModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="automatModalLabel">Automatización de Respuestas</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            
+            <nav>
+              <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Historial</button>
+                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Editar automatización</button>
+              </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+              <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                <div class="my-3">
+                  <label for="historyautomat" class="form-label">Interacción de la automatización actual</label>
+                  <textarea class="form-control" name="historyautomat" id="historyautomat" rows="9"></textarea>
+                </div>
+                
+              </div>
+              <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                <div id="advertencyautomat">
+                  <p class="mt-3">¿Seguro de editar la automatización, todos los datos guardados se perderán?</p>
+                  <div class="d-grid gap-2">
+                    <button
+                      type="button"
+                      name=""
+                      id=""
+                      onclick="automatizarRespuestas()"
+                      class="btn btn-primary"
+                    >
+                      Si, estoy seguro
+                    </button>
+                  </div>
+                  
+                </div>
+                <div id="formautomat" class="d-none">
+                  <div class="mb-3">
+                    <label for="automatconsole" class="form-label"></label>
+                    <textarea class="form-control" name="automatconsole" id="automatconsole" rows="6"></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label for="automatresponse" class="form-label">Respuesta</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="automatresponse"
+                      id="automatresponse"
+                      disabled
+                      aria-describedby="helpautomatresponse"
+                      placeholder="Escribe una respuesta"
+                    />
+                    <small id="helpautomatresponse" class="form-text text-muted"></small>
+                  </div>
+                  <button
+                    type="button"
+                    disabled
+                    class="btn btn-outline-primary me-1"
+                    id="automatbutton"
+                  >
+                    Responder
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-success"
+                    id="automatfinish"
+                    onclick="finalizarAutomatizacion()"
+                  >
+                    Finalizar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
